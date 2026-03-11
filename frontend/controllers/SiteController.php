@@ -125,15 +125,14 @@ class SiteController extends Controller
 
     public function actionSearch()
     {
-
         $q = Yii::$app->request->get('q', '');
 
         $products = Product::find()
             ->with(['productImages'])
-            ->andFilterWhere([
+            ->where([
                 'or',
-                ['like', 'name', '%' . $q . '%', false],
-                ['like', 'description', '%' . $q . '%', false],
+                ['like', 'name', $q],
+                ['like', 'description', $q],
             ])
             ->limit(20)
             ->all();
@@ -141,11 +140,15 @@ class SiteController extends Controller
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         return array_map(function ($product) {
+            $image = !empty($product->productImages)
+                ? \common\components\FileUploader::getUrl($product->productImages[0]->image)
+                : '/img/no-image.png';
+
             return [
                 'id'    => $product->id,
                 'name'  => $product->name,
                 'price' => $product->price,
-                'image' => $product->productImages[0]->image ?? '/img/no-image.png',
+                'image' => $image,
             ];
         }, $products);
     }

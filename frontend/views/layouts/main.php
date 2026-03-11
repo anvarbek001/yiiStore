@@ -58,7 +58,7 @@ AppAsset::register($this);
             'options' => ['class' => 'navbar-nav me-auto mb-2 mb-md-0'],
             'items' => $menuItems,
         ]);
-        // echo Html::input('text', 'search', '', ['id' => 'search_input', 'class' => 'search_input form-control', 'placeholder' => 'Qidirish...']);
+        echo Html::input('text', 'search', '', ['id' => 'search_input', 'class' => 'search_input form-control', 'placeholder' => 'Qidirish...']);
 
         if (Yii::$app->user->isGuest) {
             echo Html::tag('div', Html::a(Yii::t('app', 'login'), ['/site/login'], ['class' => ['btn btn-link login text-decoration-none']]), ['class' => ['d-flex']]);
@@ -80,7 +80,6 @@ AppAsset::register($this);
 
     <main role="main" class="flex-shrink-0">
         <div class="container">
-            <div id="products-container"></div>
             <?= Breadcrumbs::widget([
                 'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
             ]) ?>
@@ -96,46 +95,105 @@ AppAsset::register($this);
         </div>
     </footer>
 
+    <!-- Modal o'rniga dropdown -->
+    <div id="searchDropdown" style="
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            max-width: 95vw;
+            max-height: 70vh;
+            overflow-y: auto;
+            background: #17171f;
+            border: 1px solid #2a2a38;
+            border-radius: 16px;
+            z-index: 1050;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+        ">
+        <div style="padding:16px 20px; border-bottom:1px solid #2a2a38; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#e8e8f0; font-weight:700;">Qidiruv natijalari</span>
+            <span onclick="closeSearch()" style="color:#6b6b80; cursor:pointer; font-size:1.2rem;">✕</span>
+        </div>
+        <div id="search-modal-body" style="padding:16px;">
+            <p style="color:#6b6b80;">Qidirilmoqda...</p>
+        </div>
+    </div>
+
     <?php $this->endBody() ?>
 
     <script>
         const searchInput = document.getElementById('search_input');
         const searchUrl = '<?= \yii\helpers\Url::to(['/site/search']) ?>';
         let timer;
+        let searchModal;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('searchDropdown');
+            const input = document.getElementById('search_input');
+            if (!dropdown.contains(e.target) && e.target !== input) {
+                closeSearch();
+            }
+        });
+
         searchInput.addEventListener('input', (e) => {
             clearTimeout(timer);
+            const val = e.target.value.trim();
+            if (val.length < 2) return;
 
             timer = setTimeout(() => {
-                const searchValue = e.target.value.trim();
-                searchProducts(searchValue);
-            }, 400)
+                searchProducts(val);
+            }, 400);
         });
 
         function searchProducts(query) {
+            document.getElementById('searchDropdown').style.display = 'block';
+            document.getElementById('search-modal-body').innerHTML = '<p style="color:#6b6b80; text-align:center; padding:20px;">Qidirilmoqda...</p>';
+
             fetch(`${searchUrl}&q=${encodeURIComponent(query)}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-            }).then(res => res.json()).then(data => {
-                renderProducts(data)
-            }).catch(error => console.log("Xato: ", error))
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => renderProducts(data))
+                .catch(err => console.log("Xato:", err));
+        }
+
+        function closeSearch() {
+            document.getElementById('searchDropdown').style.display = 'none';
         }
 
         function renderProducts(products) {
-            const container = document.getElementById('products-container');
+            const body = document.getElementById('search-modal-body');
 
-            if (products.length === 0) {
-                container.innerHTML = '<p>Mahsulot topilmadi</p>';
+            if (!products.length) {
+                body.innerHTML = '<p style="color:#6b6b80; text-align:center; padding:40px 0;">Mahsulot topilmadi</p>';
                 return;
             }
 
-            container.innerHTML = products.map(product => `
-                <div class="product-card">
-                    <img src="${product.image}" alt="${product.name}">
-                    <h5>${product.name}</h5>
-                    <p>${product.price} so'm</p>
+            body.innerHTML = `
+                <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px;">
+                    ${products.map(p => `
+                        <a href="/index.php?r=site/shop&id=${p.id}" style="text-decoration:none;">
+                            <div style="background:#1e1e2a; border:1px solid #2a2a38; border-radius:12px; overflow:hidden; transition:border-color .2s;"
+                                onmouseover="this.style.borderColor='#6c63ff'" onmouseout="this.style.borderColor='#2a2a38'">
+                                <img src="${p.image}" alt="${p.name}"
+                                    style="width:100%; height:140px; object-fit:cover;">
+                                <div style="padding:12px;">
+                                    <div style="font-weight:700; color:#e8e8f0; font-size:0.9rem; margin-bottom:4px;">${p.name}</div>
+                                    <div style="color:#43d9a2; font-weight:700; font-size:0.95rem;">${parseInt(p.price).toLocaleString('ru-RU')} so'm</div>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('')}
                 </div>
-            `).join('');
+            `;
         }
     </script>
 </body>

@@ -8,5 +8,14 @@ return [
     'home' => 'Home',
     'project' => 'Project',
     'please' => 'Please fill out the following fields to signup:',
-    'shopping' => 'shoping'
+    'shopping' => 'shoping',
+    'basket' => 'basket',
+    'korzinka' => 'basket',
+    'filter' => 'Filter',
+    'newProducts' => 'New Products',
+    'price' => 'Price',
+    'from' => 'from...',
+    'until' => '...until',
+    'cheaper' => 'Cheaper',
+    'view' => "View"
 ];

@@ -583,20 +583,20 @@
                 <form action="<?= Url::to(['site/index']) ?>">
                     <div class="mb-2">
                         <select name="tez_filter" class="form-select form-select-sm">
-                            <option value="arzonroq">Arzonroq</option>
+                            <option value="arzonroq"><?= Yii::t('app', 'cheaper') ?></option>
                             <option value="qimmatroq">Qimmatroq</option>
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label for="" class="form-label">Narx</label>
-                        <input type="number" name="start_sum" class="form-control form-control-sm mb-2" placeholder="dan...">
-                        <input type="number" name="end_sum" class="form-control form-control-sm" placeholder="gacha...">
+                        <label for="" class="form-label"><?= Yii::t('app', 'price') ?></label>
+                        <input type="number" name="start_sum" class="form-control form-control-sm mb-2" placeholder="<?= Yii::t('app', 'from') ?>">
+                        <input type="number" name="end_sum" class="form-control form-control-sm" placeholder="<?= Yii::t('app', 'until') ?>">
                     </div>
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" name="new_products" id="flexSwitchCheckDefault">
-                        <label class="form-check-label" for="flexSwitchCheckDefault">Yangi mahsulotlar</label>
+                        <label class="form-check-label" for="flexSwitchCheckDefault"><?= Yii::t('app', 'newProducts') ?></label>
                     </div>
-                    <button class="btn btn-primary btn-sm w-100">Filter</button>
+                    <button class="btn btn-primary btn-sm w-100"><?= Yii::t('app', 'filter') ?></button>
                 </form>
             </div>
             <div class="col-lg-10">
@@ -666,17 +666,28 @@
                                             <circle cx="20" cy="21" r="1" />
                                             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                                         </svg>
-                                        Savatda ✓
+                                        <?= Yii::t('app', 'basket') ?> ✓
                                     </button>
                                 <?php else: ?>
-                                    <button class="btn-cart xarid_btn" data-id="<?= $product->id ?>" data-in-cart="0">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="9" cy="21" r="1" />
-                                            <circle cx="20" cy="21" r="1" />
-                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                                        </svg>
-                                        Korzinka+
-                                    </button>
+                                    <?php if (Yii::$app->user->isGuest): ?>
+                                        <button class="btn-cart btn_guest" data-id="<?= $product->id ?>" data-in-cart="0">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="9" cy="21" r="1" />
+                                                <circle cx="20" cy="21" r="1" />
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                                            </svg>
+                                            <?= Yii::t('app', 'korzinka') ?>+
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="btn-cart xarid_btn" data-id="<?= $product->id ?>" data-in-cart="0">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="9" cy="21" r="1" />
+                                                <circle cx="20" cy="21" r="1" />
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                                            </svg>
+                                            <?= Yii::t('app', 'korzinka') ?>+
+                                        </button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
 
                                 <?php if ($product->isFavourite()): ?>
@@ -704,7 +715,7 @@
                                     <span class="card-price"><?= number_format($product->price, 0, '.', ' ') ?></span>
                                 <?php endif; ?>
 
-                                <a href="<?= Url::to(['site/shop', 'id' => $product->id]) ?>" class="btn-detail">Ko'rish</a>
+                                <a href="<?= Url::to(['site/shop', 'id' => $product->id]) ?>" class="btn-detail"><?= Yii::t('app', 'view') ?></a>
                             </div>
 
                         </div>
@@ -768,6 +779,10 @@
                 })
                 .catch(() => alert('Server bilan bog\'lanishda xatolik'));
         });
+
+        document.querySelector('.btn_guest').addEventListener('click', () => {
+            alert("Avval login qiling")
+        })
 
         document.addEventListener('click', function(e) {
             const btn = e.target.closest('.favourite_btn');
