@@ -17,6 +17,6 @@ return [
     'from' => 'dan...',
     'until' => '...gacha',
     'cheaper' => 'Arzonroq',
-    'expensive' => 'Expensive',
+    'expensive' => 'Qimmatroq',
     'view' => "Ko'rish"
 ];

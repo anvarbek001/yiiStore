@@ -561,110 +561,108 @@
                         <?= Html::a('Ko\'rish →', ['site/shop', 'id' => $product->id], ['class' => 'btn-view']) ?>
                     </div>
                 </div>
+            <?php endforeach; ?>
 
+        <?php else: ?>
+            <div class="empty-state">
+                <div class="icon">🔖</div>
+                <h3>Hali hech narsa saqlanmagan</h3>
+                <p>Yoqtirgan productlaringizni shu yerda saqlang</p>
+                <?= Html::a('Productlarni ko\'rish', ['site/index'], ['class' => 'btn-browse']) ?>
+            </div>
+        <?php endif; ?>
     </div>
-<?php endforeach; ?>
 
-<?php else: ?>
-    <div class="empty-state">
-        <div class="icon">🔖</div>
-        <h3>Hali hech narsa saqlanmagan</h3>
-        <p>Yoqtirgan productlaringizni shu yerda saqlang</p>
-        <?= Html::a('Productlarni ko\'rish', ['site/index'], ['class' => 'btn-browse']) ?>
-    </div>
-<?php endif; ?>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const CSRF_TOKEN = '<?= Yii::$app->request->csrfToken ?>';
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.xarid_btn');
+            if (!btn) return;
 
-<script>
-    const CSRF_TOKEN = '<?= Yii::$app->request->csrfToken ?>';
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('.xarid_btn');
-        if (!btn) return;
+            e.preventDefault();
 
-        e.preventDefault();
+            if (btn.dataset.inCart === '1') {
+                alert('Mahsulot allaqachon savatda!');
+                return;
+            }
 
-        if (btn.dataset.inCart === '1') {
-            alert('Mahsulot allaqachon savatda!');
-            return;
-        }
+            const productId = btn.dataset.id;
 
-        const productId = btn.dataset.id;
-
-        fetch('/index.php?r=site/korzinka', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': CSRF_TOKEN
-                },
-                body: JSON.stringify({
-                    product_id: productId
+            fetch('/index.php?r=site/korzinka', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({
+                        product_id: productId
+                    })
                 })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    btn.innerHTML = `
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.innerHTML = `
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                             </svg>
                             Savatda ✓
                         `;
-                    btn.classList.add('in-cart');
-                    btn.dataset.inCart = '1';
-                } else {
-                    alert(data.message || 'Xatolik yuz berdi');
-                }
-            })
-            .catch(() => alert('Server bilan bog\'lanishda xatolik'));
-    });
-
-    /* ─── SEVIMLILAR ─── */
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('.favourite_btn');
-        if (!btn) return;
-
-        e.preventDefault();
-
-        const productId = btn.dataset.id;
-
-        fetch('/index.php?r=site/favourite', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': CSRF_TOKEN
-                },
-                body: JSON.stringify({
-                    product_id: productId
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    if (btn.dataset.fav === '0') {
-                        // Sevimlilarga qo'shildi
-                        btn.textContent = '♥';
-                        btn.classList.add('active');
-                        btn.dataset.fav = '1';
-                        btn.title = 'Sevimlilarda bor';
+                        btn.classList.add('in-cart');
+                        btn.dataset.inCart = '1';
                     } else {
-                        // Sevimlillardan olib tashlandi
-                        btn.textContent = '♡';
-                        btn.classList.remove('active');
-                        btn.dataset.fav = '0';
-                        btn.title = "Sevimlilarga qo'shish";
+                        alert(data.message || 'Xatolik yuz berdi');
                     }
-                } else {
-                    alert(data.message || 'Xatolik yuz berdi');
-                }
-            })
-            .catch(() => alert('Server bilan bog\'lanishda xatolik'));
-    });
-</script>
+                })
+                .catch(() => alert('Server bilan bog\'lanishda xatolik'));
+        });
+
+        /* ─── SEVIMLILAR ─── */
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.favourite_btn');
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const productId = btn.dataset.id;
+
+            fetch('/index.php?r=site/favourite', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({
+                        product_id: productId
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (btn.dataset.fav === '0') {
+                            // Sevimlilarga qo'shildi
+                            btn.textContent = '♥';
+                            btn.classList.add('active');
+                            btn.dataset.fav = '1';
+                            btn.title = 'Sevimlilarda bor';
+                        } else {
+                            // Sevimlillardan olib tashlandi
+                            btn.textContent = '♡';
+                            btn.classList.remove('active');
+                            btn.dataset.fav = '0';
+                            btn.title = "Sevimlilarga qo'shish";
+                        }
+                    } else {
+                        alert(data.message || 'Xatolik yuz berdi');
+                    }
+                })
+                .catch(() => alert('Server bilan bog\'lanishda xatolik'));
+        });
+    </script>
 </body>
 
 </html>

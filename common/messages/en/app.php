@@ -17,5 +17,6 @@ return [
     'from' => 'from...',
     'until' => '...until',
     'cheaper' => 'Cheaper',
+    'expensive' => 'Expensive',
     'view' => "View"
 ];

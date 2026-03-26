@@ -13,6 +13,7 @@ use common\models\SubSubCategory;
 use PDO;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\UploadedFile;
 
@@ -28,6 +29,14 @@ class ProductsController extends Controller
                 'class' => AdminFilter::class,
             ],
         ];
+    }
+
+    public function beforeAction($action)
+    {
+        if ($action->id === 'update-status') {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
     }
 
     public function actionIndex()
@@ -197,5 +206,25 @@ class ProductsController extends Controller
         $cheg->delete();
         Yii::$app->session->setFlash('success', 'Chegirma o\'chirildi');
         return $this->redirect(['/products/index']);
+    }
+
+    public function actionUpdateStatus()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $data = json_decode(Yii::$app->request->rawBody, true);
+        $id = $data['id'];
+        $status = $data['status'];
+
+        $product = Product::findOne($id);
+
+        if ($product) {
+            $product->status = $status;
+            if ($product->save()) {
+                return ['success' => true];
+            }
+        }
+
+        return ['success' => false];
     }
 }

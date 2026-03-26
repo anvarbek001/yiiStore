@@ -584,7 +584,7 @@
                     <div class="mb-2">
                         <select name="tez_filter" class="form-select form-select-sm">
                             <option value="arzonroq"><?= Yii::t('app', 'cheaper') ?></option>
-                            <option value="qimmatroq">Qimmatroq</option>
+                            <option value="qimmatroq"><?= Yii::t('app', 'expensive') ?></option>
                         </select>
                     </div>
                     <div class="mb-2">
@@ -689,11 +689,14 @@
                                         </button>
                                     <?php endif; ?>
                                 <?php endif; ?>
-
-                                <?php if ($product->isFavourite()): ?>
-                                    <button class="btn-wishlist active favourite_btn" data-id="<?= $product->id ?>" data-fav="1" title="Sevimlilarda bor">♥</button>
+                                <?php if (Yii::$app->user->isGuest): ?>
+                                    <button class="btn-wishlist favourite_btn btn-favourites" title="Sevimlilarga qo'shish">♡</button>
                                 <?php else: ?>
-                                    <button class="btn-wishlist favourite_btn" data-id="<?= $product->id ?>" data-fav="0" title="Sevimlilarga qo'shish">♡</button>
+                                    <?php if ($product->isFavourite()): ?>
+                                        <button class="btn-wishlist active favourite_btn" data-id="<?= $product->id ?>" data-fav="1" title="Sevimlilarda bor">♥</button>
+                                    <?php else: ?>
+                                        <button class="btn-wishlist favourite_btn" data-id="<?= $product->id ?>" data-fav="0" title="Sevimlilarga qo'shish">♡</button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
 
@@ -780,8 +783,18 @@
                 .catch(() => alert('Server bilan bog\'lanishda xatolik'));
         });
 
-        document.querySelector('.btn_guest').addEventListener('click', () => {
-            alert("Avval login qiling")
+        document.querySelectorAll('.btn_guest').forEach((guest) => {
+            guest.addEventListener('click', () => {
+                alert("Avval login qiling")
+                return;
+            })
+        })
+
+        document.querySelectorAll('.btn-favourites').forEach((guest) => {
+            guest.addEventListener('click', () => {
+                alert("Avval login qiling")
+                return
+            })
         })
 
         document.addEventListener('click', function(e) {
@@ -789,6 +802,9 @@
             if (!btn) return;
             e.preventDefault();
             const productId = btn.dataset.id;
+            if (!productId) {
+                return;
+            }
             fetch('/index.php?r=site/favourite', {
                     method: 'POST',
                     headers: {

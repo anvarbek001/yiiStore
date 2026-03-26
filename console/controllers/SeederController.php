@@ -11,7 +11,6 @@ class SeederController extends Controller
     public function actionUser($count = 10)
     {
         for ($i = 1; $i <= $count; $i++) {
-
             $user = new User();
             $user->username = "user{$i}";
             $user->email = "user{$i}@mail.com";
@@ -30,7 +29,6 @@ class SeederController extends Controller
                 print_r($user->errors);
             }
         }
-
         echo "Seeder finished ";
     }
 }

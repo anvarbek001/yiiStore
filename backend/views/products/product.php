@@ -476,6 +476,7 @@
 
     use common\components\FileUploader;
     use yii\helpers\Html;
+    use yii\helpers\Url;
     use yii\widgets\ActiveForm;
     use yii\widgets\LinkPager;
 
@@ -571,6 +572,14 @@
                         'data-method' => 'post',
                     ]) ?>
                     <button class="btn-detail" data-bs-toggle="modal" data-bs-target="#exampleModalChegirma-<?= $product->id ?>"><i class="bi bi-tag-fill"></i></button>
+                </div>
+                <div class="form-check form-switch mx-3">
+                    <input class="form-check-input status-toggle" type="checkbox"
+                        data-id="<?= $product->id ?>"
+                        <?= $product->status == 1 ? 'checked' : '' ?>>
+                    <span class="status-label" style="color:<?= $product->status == 1 ? 'green' : 'red' ?>;">
+                        <?= $product->status == 1 ? 'Active' : 'No active' ?>
+                    </span>
                 </div>
                 <div class="card-footer">
                     <?php if ($product->latestBlog): ?>
@@ -930,6 +939,32 @@
         } else {
             subsubcategoryDropdown.innerHTML = '<option value=\"\">Subkategoriyani tanlang...</option>';
         }
+    });
+");
+    ?>
+
+    <?php
+    $updateStatusUrl = Url::to(['/products/update-status']);
+    $this->registerJs("
+    document.querySelectorAll('.status-toggle').forEach(function(toggle) {
+        toggle.addEventListener('change', function() {
+            var productId = this.dataset.id;
+            var status = this.checked ? 1 : 0;
+            var label = this.nextElementSibling;
+
+            fetch('{$updateStatusUrl}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: productId, status: status })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    label.textContent = status == 1 ? 'Active' : 'No active';
+                    label.style.color = status == 1 ? 'green' : 'red';
+                }
+            });
+        });
     });
 ");
     ?>

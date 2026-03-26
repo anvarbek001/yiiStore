@@ -89,7 +89,7 @@ class SiteController extends Controller
         $endSum = Yii::$app->request->get('end_sum');
         $newProducts = Yii::$app->request->get('new_products');
         $tezFilter = Yii::$app->request->get('tez_filter');
-        $query = Product::find()->with(['user', 'category', 'subcategory', 'subSubCategory', 'productImages'])->orderBy(['created_at' => SORT_DESC]);
+        $query = Product::find()->where(['status' => 1])->with(['user', 'category', 'subcategory', 'subSubCategory', 'productImages'])->orderBy(['created_at' => SORT_DESC]);
         // dd(Yii::$app->request->get());
 
         if ($subsubcategory_id) {

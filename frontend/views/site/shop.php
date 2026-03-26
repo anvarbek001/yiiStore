@@ -307,7 +307,7 @@ $images = $product->productImages;
             gap: 10px;
         }
 
-        .btn-wishlist {
+        .btn-wishlists {
             width: 100%;
             background: var(--surface2);
             border: 1px solid var(--border);
@@ -321,7 +321,7 @@ $images = $product->productImages;
             transition: border-color .2s, color .2s;
         }
 
-        .btn-wishlist:hover {
+        .btn-wishlists:hover {
             border-color: var(--accent2);
             color: var(--accent2);
         }
@@ -717,14 +717,25 @@ $images = $product->productImages;
                 </button>
             <?php else: ?>
                 <!-- Savatga qo'shish -->
-                <button class="btn-cart xarid_btn" data-id="<?= $product->id ?>" data-in-cart="0">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="9" cy="21" r="1" />
-                        <circle cx="20" cy="21" r="1" />
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                    </svg>
-                    Korzinka+
-                </button>
+                <?php if (Yii::$app->user->isGuest): ?>
+                    <button class="btn-cart xarid_btn xarid_guest" data-id="<?= $product->id ?>" data-in-cart="0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1" />
+                            <circle cx="20" cy="21" r="1" />
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                        </svg>
+                        Korzinka+
+                    </button>
+                <?php else: ?>
+                    <button class="btn-cart xarid_btn" data-id="<?= $product->id ?>" data-in-cart="0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1" />
+                            <circle cx="20" cy="21" r="1" />
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                        </svg>
+                        Korzinka+
+                    </button>
+                <?php endif; ?>
             <?php endif; ?>
             <?php $form = ActiveForm::end(); ?>
 
@@ -741,15 +752,24 @@ $images = $product->productImages;
             <!-- CTA tugmalar -->
             <div class="cta-group">
                 <?php if ($product->isFavourite()): ?>
-                    <button class="btn-wishlist" style="border-color:var(--accent2); color:var(--accent2);">
+                    <button class="btn-wishlists" style="border-color:var(--accent2); color:var(--accent2);">
                         ♥ Saqlangan
                     </button>
                 <?php else: ?>
-                    <button class="btn-wishlist" id="btn_favourite">♡ Sevimlilarga qo'shish</button>
+                    <button class="btn-wishlists" id="btn_favourite">♡ Sevimlilarga qo'shish</button>
                 <?php endif; ?>
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.xarid_guest').forEach((guest) => {
+            guest.addEventListener('click', () => {
+                alert("Avval login qiling")
+                return;
+            })
+        })
+    </script>
 
     <style>
         :root {
@@ -1211,6 +1231,10 @@ $images = $product->productImages;
 
             const productId = btn.dataset.id;
 
+            if (!productId) {
+                return;
+            }
+
             fetch('/index.php?r=site/korzinka', {
                     method: 'POST',
                     headers: {
@@ -1235,7 +1259,7 @@ $images = $product->productImages;
                         btn.classList.add('in-cart');
                         btn.dataset.inCart = '1';
                     } else {
-                        alert(data.message || 'Xatolik yuz berdi');
+                        // alert(data.message || 'Xatolik yuz berdi');
                     }
                 })
                 .catch(() => alert('Server bilan bog\'lanishda xatolik'));
@@ -1249,6 +1273,10 @@ $images = $product->productImages;
             e.preventDefault();
 
             const productId = btn.dataset.id;
+
+            if (!productId) {
+                return;
+            }
 
             fetch('/index.php?r=site/favourite', {
                     method: 'POST',
