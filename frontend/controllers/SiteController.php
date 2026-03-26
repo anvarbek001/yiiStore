@@ -629,30 +629,28 @@ class SiteController extends Controller
 
     public function actionTransaction()
     {
-        $korzinkas = Korzinka::find()->where(['user_id' => Yii::$app->user->id])->all();
+        $id = Yii::$app->request->post('id');
+        $korzinka = Korzinka::find()->where(['user_id' => Yii::$app->user->id, 'id' => $id])->one();
         $yetkazish = Yii::$app->request->post('yetkazish');
         $address   = Yii::$app->request->post('address');
         $tolovTuri   = Yii::$app->request->post('tolov_turi');
         $bolibTolash   = Yii::$app->request->post('bolib_tolash');
         // dd(Yii::$app->request->post());
-        foreach ($korzinkas as $korzinka) {
 
-            if ($korzinka->product->blog()) {
-                $korzinka->price = $korzinka->product->blog();
-            } else {
-                $korzinka->price = $korzinka->product->price;
-            }
-
-            $korzinka->yetkazish_turi = $yetkazish;
-            $korzinka->address = $address;
-            $korzinka->tolov_turi = $tolovTuri;
-            $korzinka->status = 1;
-            if ($bolibTolash > 0 && $bolibTolash != null) {
-                $korzinka->muddatli_tolov_summasi = $bolibTolash;
-            }
-            $korzinka->save(false);
+        if ($korzinka->product->blog()) {
+            $korzinka->price = $korzinka->product->blog();
+        } else {
+            $korzinka->price = $korzinka->product->price;
         }
 
+        $korzinka->yetkazish_turi = $yetkazish;
+        $korzinka->address = $address;
+        $korzinka->tolov_turi = $tolovTuri;
+        $korzinka->status = 1;
+        if ($bolibTolash > 0 && $bolibTolash != null) {
+            $korzinka->muddatli_tolov_summasi = $bolibTolash;
+        }
+        $korzinka->save(false);
         Yii::$app->session->setFlash('success', 'Mahsulotlar xarid qilindi');
         return $this->redirect(['site/korzinkasaved']);
     }

@@ -490,7 +490,11 @@ $this->title = 'Savat';
                                             flex-direction: column;
                                             gap: 4px;
                                         ">
-                                    <span>✅ Xarid qilindi &mdash; yetkazib berish muddati: <strong>ertaga</strong></span>
+                                    <?php if ($item->yetkazish_turi == 'olib_ketish'): ?>
+                                        <span>✅ Xarid qilindi &mdash; olib ketish mumkin: <strong>ertaga</strong></span>
+                                    <?php else: ?>
+                                        <span>✅ Xarid qilindi &mdash; yetkazib berish muddati: <strong>ertaga</strong></span>
+                                    <?php endif; ?>
                                     <?php if ($item->tolov_turi == 'payme' || $item->tolov_turi == 'click'): ?>
                                         <span><strong>✅To'lov amalga oshirilgan</strong></span>
                                     <?php elseif ($item->tolov_turi == 'naqt'): ?>
@@ -573,18 +577,19 @@ $this->title = 'Savat';
                                 <h1 class="modal-title fs-5" id="exampleModalLabel">Xarid qilish</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="<?= Url::to(['site/transaction']) ?>" method="POST" onsubmit="return confirm('Xaridni tasdiqlaysizmi?')">
+                            <form action="<?= Url::to(['site/transaction', 'id' => $item->id]) ?>" method="POST" onsubmit="return confirm('Xaridni tasdiqlaysizmi?')">
                                 <div class="modal-body">
                                     <input type="hidden"
                                         name="<?= Yii::$app->request->csrfParam ?>"
                                         value="<?= Yii::$app->request->csrfToken ?>">
+                                    <input type="hidden" value="<?= $item->id ?>" name="id">
                                     <div class="mb-3">
                                         <label for="recipient-name" class="col-form-label">Mahsulot soni:</label>
-                                        <input type="text" class="form-control" value="<?= $item->countProduct() ?>" id="recipient-name" disabled>
+                                        <input type="text" class="form-control" value="<?= $korzinkas[0]->countProduct() ?>" id="recipient-name" disabled>
                                     </div>
                                     <div class="mb-3">
                                         <label for="recipient-name" class="col-form-label">Buyurma summasi:</label>
-                                        <input type="text" class="form-control" value="<?= number_format($grandTotal, 0, '.', ' ') ?>" id="recipient-name" disabled>
+                                        <input type="text" class="form-control" value="<?= number_format($korzinkas[0]->priceProduct(), 0, '.', ' ') ?>" id="recipient-name" disabled>
                                     </div>
                                     <div class="mb-3">
                                         <label for="recipient-name" class="col-form-label">Yetkazish turi:</label>

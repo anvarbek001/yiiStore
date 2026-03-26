@@ -39,7 +39,6 @@ class Korzinka extends ActiveRecord
         $products = Korzinka::find()->where(['user_id' => Yii::$app->user->id, 'status' => 0])->all();
         $count = 0;
         foreach ($products as $product) {
-
             $count += $product->count;
         }
         return $count;
@@ -57,16 +56,15 @@ class Korzinka extends ActiveRecord
 
     public function priceProduct()
     {
-        $korzinkas = Korzinka::find()->where(['user_id' => Yii::$app->user->id, 'status' => 0])->all();
+        $korzinkas = Korzinka::find()
+            ->where(['user_id' => Yii::$app->user->id, 'status' => 0])
+            ->all();
         $price = 0;
         foreach ($korzinkas as $korzinka) {
             $discount = $korzinka->product?->blogs?->discount_price;
+            $unitPrice = $discount ?: $korzinka->price;
 
-            if ($discount) {
-                $price += $discount;
-            } else {
-                $price += $korzinka->price;
-            }
+            $price += $unitPrice * $korzinka->count;
         }
         return $price;
     }
