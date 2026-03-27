@@ -32,4 +32,9 @@ class SubSubCategory extends ActiveRecord
     {
         return $this->hasMany(Product::class, ['sub_sub_category_id' => 'id']);
     }
+
+    public function getChildrenCategories()
+    {
+        return $this->hasMany(ChildrenCategory::class, ['sub_sub_category_id' => 'id'])->andWhere(['parent_id' => null]);
+    }
 }

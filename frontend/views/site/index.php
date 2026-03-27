@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productlar</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         :root {
             --bg: #0f0f13;
@@ -587,11 +588,11 @@
                             <option value="qimmatroq"><?= Yii::t('app', 'expensive') ?></option>
                         </select>
                     </div>
-                    <div class="mb-2">
+                    <!-- <div class="mb-2">
                         <label for="" class="form-label"><?= Yii::t('app', 'price') ?></label>
                         <input type="number" name="start_sum" class="form-control form-control-sm mb-2" placeholder="<?= Yii::t('app', 'from') ?>">
                         <input type="number" name="end_sum" class="form-control form-control-sm" placeholder="<?= Yii::t('app', 'until') ?>">
-                    </div>
+                    </div> -->
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" name="new_products" id="flexSwitchCheckDefault">
                         <label class="form-check-label" for="flexSwitchCheckDefault"><?= Yii::t('app', 'newProducts') ?></label>

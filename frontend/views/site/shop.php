@@ -1259,7 +1259,7 @@ $images = $product->productImages;
                         btn.classList.add('in-cart');
                         btn.dataset.inCart = '1';
                     } else {
-                        // alert(data.message || 'Xatolik yuz berdi');
+                        alert(data.message || 'Xatolik yuz berdi');
                     }
                 })
                 .catch(() => alert('Server bilan bog\'lanishda xatolik'));

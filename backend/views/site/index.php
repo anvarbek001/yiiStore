@@ -312,7 +312,7 @@ $this->title = 'Kategoriyalar';
     <div>
         <h1 class="page-title">Kategoriyalar</h1>
         <p class="page-sub">Mahsulotlar alohida bo'limdan qo'shiladi</p>
-        <div class="bc-trail">
+        <!-- <div class="bc-trail">
             <span style="background:#ede9fe;color:#7c3aed;">📂 Kategoriya</span>
             <span style="color:#d1d5db;">›</span>
             <span style="background:#e0f2fe;color:#0284c7;">📁 Subkategoriya</span>
@@ -320,7 +320,7 @@ $this->title = 'Kategoriyalar';
             <span style="background:#d1fae5;color:#059669;">🗂️ Sub-subkategoriya</span>
             <span style="color:#d1d5db;">›</span>
             <span style="background:#fef3c7;color:#d97706;">📦 Mahsulot (alohida)</span>
-        </div>
+        </div> -->
     </div>
     <button class="btn btn-primary fw-semibold px-4" style="border-radius:10px;white-space:nowrap;"
         data-bs-toggle="modal" data-bs-target="#modal_addCategory">
@@ -409,25 +409,57 @@ $this->title = 'Kategoriyalar';
 
                                         <?php foreach ($subSubCategories as $subSubCategory): ?>
                                             <!-- · LEVEL 2: Sub-subkategoriya · -->
-                                            <div class="l2-card">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <div class="l2-icon">🗂️</div>
-                                                    <div>
-                                                        <div class="badge-l2 mb-1">Sub-subkategoriya</div>
-                                                        <div class="l2-name"><?= Html::encode($subSubCategory->name) ?></div>
+                                            <div style="background:#fff; border-radius:8px; border:1.5px solid #d1fae5; overflow:hidden; margin-bottom:4px;">
+
+                                                <!-- L2 Header — collapse trigger -->
+                                                <div class="d-flex align-items-center justify-content-between"
+                                                    style="padding:8px 11px; cursor:pointer; transition:background .15s;"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapse_subsub_<?= $subSubCategory->id ?>"
+                                                    onmouseover="this.style.background='#f0fdf4'"
+                                                    onmouseout="this.style.background='#fff'">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="l2-icon">🗂️</div>
+                                                        <div>
+                                                            <div class="badge-l2 mb-1">Sub-subkategoriya</div>
+                                                            <div class="l2-name"><?= Html::encode($subSubCategory->name) ?></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <button class="btn-edit"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modal_editSubSubCategory_<?= $subSubCategory->id ?>"
+                                                            onclick="event.stopPropagation()">✏️</button>
+                                                        <form method="post"
+                                                            action="<?= Url::to(['sub-category/sub-sub-delete', 'id' => $subSubCategory->id]) ?>"
+                                                            style="display:inline" onclick="event.stopPropagation()">
+                                                            <?= Html::hiddenInput(\Yii::$app->request->csrfParam, \Yii::$app->request->getCsrfToken()) ?>
+                                                            <button type="submit" class="btn-del"
+                                                                onclick="event.stopPropagation(); return confirm('O\'chirishni tasdiqlaysizmi?')">🗑️</button>
+                                                        </form>
+                                                        <span class="chevron">▼</span>
                                                     </div>
                                                 </div>
-                                                <div class="d-flex gap-2">
-                                                    <button class="btn-edit"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modal_editSubSubCategory_<?= $subSubCategory->id ?>">✏️</button>
-                                                    <form method="post"
-                                                        action="<?= Url::to(['sub-category/sub-sub-delete', 'id' => $subSubCategory->id]) ?>"
-                                                        style="display:inline">
-                                                        <?= Html::hiddenInput(\Yii::$app->request->csrfParam, \Yii::$app->request->getCsrfToken()) ?>
-                                                        <button type="submit" class="btn-del"
-                                                            onclick="return confirm('O\'chirishni tasdiqlaysizmi?')">🗑️</button>
-                                                    </form>
+
+                                                <!-- L2 Body — children bu yerda -->
+                                                <div class="collapse" id="collapse_subsub_<?= $subSubCategory->id ?>">
+                                                    <div style="border-top:1.5px solid #d1fae5; padding:8px 10px; background:#f0fdf4;">
+
+                                                        <?php if (!empty($subSubCategory->childrenCategories)): ?>
+                                                            <?= $this->render('_children', [
+                                                                'nodes'            => $subSubCategory->childrenCategories,
+                                                                'depth'            => 3,
+                                                                'subSubCategoryId' => $subSubCategory->id,
+                                                            ]) ?>
+                                                        <?php endif; ?>
+
+                                                        <button class="add-row mt-1"
+                                                            style="border-color:#d97706; color:#d97706;"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modal_addFirstChildren_<?= $subSubCategory->id ?>">
+                                                            <span>＋</span> Children qo'shish
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -442,13 +474,11 @@ $this->title = 'Kategoriyalar';
                                                         <form method="post" action="<?= Url::to(['sub-category/sub-sub-update', 'id' => $subSubCategory->id]) ?>">
                                                             <?= Html::hiddenInput(\Yii::$app->request->csrfParam, \Yii::$app->request->getCsrfToken()) ?>
                                                             <div class="modal-body px-4 py-3">
-                                                                <div class="mb-0">
-                                                                    <label class="form-label fw-semibold">Nomi</label>
-                                                                    <input type="text" name="SubSubCategory[name]"
-                                                                        value="<?= Html::encode($subSubCategory->name) ?>"
-                                                                        class="form-control form-control-lg"
-                                                                        style="border-radius:10px" required>
-                                                                </div>
+                                                                <label class="form-label fw-semibold">Nomi</label>
+                                                                <input type="text" name="SubSubCategory[name]"
+                                                                    value="<?= Html::encode($subSubCategory->name) ?>"
+                                                                    class="form-control form-control-lg"
+                                                                    style="border-radius:10px" required>
                                                             </div>
                                                             <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
                                                                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Bekor</button>
@@ -458,6 +488,34 @@ $this->title = 'Kategoriyalar';
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Add First Children Modal -->
+                                            <div class="modal fade" id="modal_addFirstChildren_<?= $subSubCategory->id ?>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content shadow">
+                                                        <div class="modal-header border-0 px-4 pt-4 pb-0">
+                                                            <h5 class="modal-title fw-bold">🏷️ Yangi Children kategoriya</h5>
+                                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <form method="post" action="<?= Url::to(['children-category/create']) ?>">
+                                                            <?= Html::hiddenInput(\Yii::$app->request->csrfParam, \Yii::$app->request->getCsrfToken()) ?>
+                                                            <div class="modal-body px-4 py-3">
+                                                                <input type="hidden" name="ChildrenCategory[sub_sub_category_id]" value="<?= $subSubCategory->id ?>">
+                                                                <input type="hidden" name="ChildrenCategory[parent_id]" value="">
+                                                                <label class="form-label fw-semibold">Nomi</label>
+                                                                <input type="text" name="ChildrenCategory[name]"
+                                                                    class="form-control form-control-lg" style="border-radius:10px"
+                                                                    placeholder="Nomi..." required>
+                                                            </div>
+                                                            <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                                                                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Bekor</button>
+                                                                <button type="submit" class="btn btn-warning px-4 fw-semibold">Qo'shish</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         <?php endforeach; ?>
 
                                         <!-- Add sub-subkategoriya -->

@@ -129,7 +129,8 @@ class SiteController extends Controller
 
         $products = Product::find()
             ->with(['productImages'])
-            ->where([
+            ->where(['status' => 1])
+            ->andWhere([
                 'or',
                 ['like', 'name', $q],
                 ['like', 'description', $q],
@@ -343,12 +344,17 @@ class SiteController extends Controller
 
     public function actionShop($id)
     {
-        $product = Product::find()->where(['id' => $id])->with('favourite')->one();
+        $product = Product::find()->where(['id' => $id])->andWhere(['status' => 1])->with('favourite')->one();
+
+        if (!$product) {
+            return $this->redirect(['site/index']);
+        }
 
         $categoryIds = $product->category_id;
 
         $recommendedProducts = Product::find()
             ->where(['category_id' => $categoryIds])
+            ->andWhere(['not in', 'sub_category_id', $product->sub_category_id])
             ->andWhere(['not in', 'id', $product->id])
             ->with(['productImages', 'category', 'subcategory'])
             ->limit(8)
@@ -543,10 +549,11 @@ class SiteController extends Controller
         if (!$productId) {
             return ['success' => false, 'message' => 'product_id kerak'];
         }
-        $prod = Product::find()->where(['id' => $productId])->one();
+
+        $prod = Product::find()->where(['id' => $productId])->andWhere(['status' => 1])->one();
 
         if (!$prod) {
-            return ['success' => false, 'message' => 'Mahsulot topilmadi'];
+            return ['success' => false, 'message' => 'Mahsulot aktive holatda emas'];
         }
 
         $exists = Korzinka::find()
@@ -629,28 +636,28 @@ class SiteController extends Controller
 
     public function actionTransaction()
     {
-        $id = Yii::$app->request->post('id');
-        $korzinka = Korzinka::find()->where(['user_id' => Yii::$app->user->id, 'id' => $id])->one();
+        $korzinkas = Korzinka::find()->where(['user_id' => Yii::$app->user->id])->all();
         $yetkazish = Yii::$app->request->post('yetkazish');
         $address   = Yii::$app->request->post('address');
         $tolovTuri   = Yii::$app->request->post('tolov_turi');
         $bolibTolash   = Yii::$app->request->post('bolib_tolash');
-        // dd(Yii::$app->request->post());
 
-        if ($korzinka->product->blog()) {
-            $korzinka->price = $korzinka->product->blog();
-        } else {
-            $korzinka->price = $korzinka->product->price;
-        }
+        foreach ($korzinkas as $korzinka) {
+            if ($korzinka->product->blog()) {
+                $korzinka->price = $korzinka->product->blog();
+            } else {
+                $korzinka->price = $korzinka->product->price;
+            }
 
-        $korzinka->yetkazish_turi = $yetkazish;
-        $korzinka->address = $address;
-        $korzinka->tolov_turi = $tolovTuri;
-        $korzinka->status = 1;
-        if ($bolibTolash > 0 && $bolibTolash != null) {
-            $korzinka->muddatli_tolov_summasi = $bolibTolash;
+            $korzinka->yetkazish_turi = $yetkazish;
+            $korzinka->address = $address;
+            $korzinka->tolov_turi = $tolovTuri;
+            $korzinka->status = 1;
+            if ($bolibTolash > 0 && $bolibTolash != null) {
+                $korzinka->muddatli_tolov_summasi = $bolibTolash;
+            }
+            $korzinka->save(false);
         }
-        $korzinka->save(false);
         Yii::$app->session->setFlash('success', 'Mahsulotlar xarid qilindi');
         return $this->redirect(['site/korzinkasaved']);
     }

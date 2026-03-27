@@ -70,7 +70,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $categories = Category::find()->with(['subCategories.subSubCategories'])->all();
+        $categories = Category::find()->with(['subCategories.subSubCategories.childrenCategories.childrens.childrens.childrens'])->all();
         $model = new Category();
         $updateModel = new Category();
         // dd($categories);
@@ -136,17 +136,15 @@ class SiteController extends Controller
 
     public function actionBlog()
     {
-        $blogs = Blog::find()->all();
 
         $dataProvider = new ActiveDataProvider([
-            'query' => Product::find()->where(['user_id' => Yii::$app->user->id])->innerJoinWith('blogs')->with(['user', 'category', 'subcategory', 'subSubCategory', 'productImages', 'latestBlog']),
+            'query' => SubSubCategory::find()->with(['childrenCategories']),
             'pagination' => [
                 'pageSize' => 8
             ]
         ]);
 
         return $this->render('blog', [
-            'blogs' => $blogs,
             'dataProvider' => $dataProvider,
         ]);
     }
