@@ -8,6 +8,7 @@ use common\models\Product;
 use common\models\SubCategory;
 use common\components\FileUploader;
 use common\models\Blog;
+use common\models\ChildrenCategory;
 use common\models\ProductImage;
 use common\models\SubSubCategory;
 use PDO;
@@ -44,7 +45,7 @@ class ProductsController extends Controller
         $model = new Product();
 
         $dataProvider = new ActiveDataProvider([
-            'query' => Product::find()->where(['user_id' => Yii::$app->user->id])->with(['user', 'category', 'subcategory', 'subSubCategory', 'productImages', 'latestBlog'])->orderBy(['created_at' => SORT_DESC]),
+            'query' => Product::find()->where(['user_id' => Yii::$app->user->id])->with(['user', 'category', 'subcategory', 'subSubCategory', 'childrenCategory', 'productImages', 'latestBlog'])->orderBy(['created_at' => SORT_DESC]),
             'pagination' => [
                 'pageSize' => 8
             ]
@@ -111,6 +112,17 @@ class ProductsController extends Controller
         return \yii\helpers\ArrayHelper::map($subcategories, 'id', 'name');
     }
 
+    public function actionGetChildrens($sub_sub_category_id)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $children = ChildrenCategory::find()
+            ->where(['sub_sub_category_id' => $sub_sub_category_id])
+            ->all();
+
+        return \yii\helpers\ArrayHelper::map($children, 'id', 'name');
+    }
+
     public function actionUpdate($id)
     {
         $model = Product::findOne($id);
@@ -162,15 +174,16 @@ class ProductsController extends Controller
     public function actionChegirma($id)
     {
         $product = Product::findOne($id);
-        $discountPrice = (int) Yii::$app->request->post('discount_price');
+        $chegirmaFoiz = (int) Yii::$app->request->post('chegirma_foiz');
 
-        if ($discountPrice >= $product->price) {
-            Yii::$app->session->setFlash('error', 'Chegirma mahsulot narxidan katta yoki teng bo\'lishi mumkin emas');
+        if ($chegirmaFoiz >= 100) {
+            Yii::$app->session->setFlash('error', 'Chegirma 100% teng bo\'lishi mumkin emas');
             return $this->redirect(['/products/index']);
         }
         $model = new Blog();
         $model->product_id = $id;
-        $model->discount_price = Yii::$app->request->post('discount_price');
+        $model->discount_price = $product->price - round(($product->price * $chegirmaFoiz) / 100);
+        $model->chegirma_foiz = $chegirmaFoiz;
         $model->created_at = date('Y-m-d H:i:s');
         if ($model->save()) {
             Yii::$app->session->setFlash('success', 'Chegirma qoshildi');
@@ -183,15 +196,16 @@ class ProductsController extends Controller
     {
         $model = Blog::findOne($id);
         $product = Product::findOne($model->product_id);
-        $discountPrice = (int) Yii::$app->request->post('discount_price');
+        $chegirmaFoiz = (int) Yii::$app->request->post('chegirma_foiz');
         $productId = $model->product_id;
 
-        if ($discountPrice >= $product->price) {
-            Yii::$app->session->setFlash('error', 'Chegirma mahsulot narxidan katta yoki teng bo\'lishi mumkin emas');
+        if ($chegirmaFoiz >= 100) {
+            Yii::$app->session->setFlash('error', 'Chegirma 100% dan katta yoki teng bo\'lishi mumkin emas');
             return $this->redirect(['/products/index']);
         }
         $model->product_id = $productId;
-        $model->discount_price = Yii::$app->request->post('discount_price');
+        $model->discount_price = $product->price - round(($product->price * $chegirmaFoiz) / 100);
+        $model->chegirma_foiz = $chegirmaFoiz;
         $model->created_at = date('Y-m-d H:i:s');
         if ($model->save()) {
             Yii::$app->session->setFlash('success', 'Chegirma yangilandi');

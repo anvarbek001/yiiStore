@@ -480,6 +480,8 @@
     use yii\widgets\ActiveForm;
     use yii\widgets\LinkPager;
 
+    use function PHPUnit\Framework\isEmpty;
+
     $products = $dataProvider->getModels();
 
     // Flash xabarlar
@@ -572,6 +574,7 @@
                         'data-method' => 'post',
                     ]) ?>
                     <button class="btn-detail" data-bs-toggle="modal" data-bs-target="#exampleModalChegirma-<?= $product->id ?>"><i class="bi bi-tag-fill"></i></button>
+                    <button class="btn-detail" data-bs-toggle="modal" data-bs-target="#exampleModalComment-<?= $product->id ?>"><i class="bi bi-chat"></i></button>
                 </div>
                 <div class="form-check form-switch mx-3">
                     <input class="form-check-input status-toggle" type="checkbox"
@@ -609,7 +612,7 @@
                 </div>
             </div>
 
-            <!-- Modal -->
+            <!-- Chegirma Modal -->
             <div class="modal fade" id="exampleModalChegirma-<?= $product->id ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="background: var(--surface); border-radius: 20px;">
@@ -619,14 +622,129 @@
                         </div>
                         <?php $form = ActiveForm::begin(['action' => ['products/chegirma', 'id' => $product->id], 'method' => 'post']); ?>
                         <div class="modal-body">
-                            <label class="form-label">Chegirma summasi</label>
-                            <input type="text" name="discount_price" class="form-control">
+                            <label class="form-label">Chegirma foizi</label>
+                            <input type="text" name="chegirma_foiz" class="form-control">
                         </div>
                         <div class="modal-footer">
                             <?= Html::submitButton('Saqlash', ['class' => 'btn-save']) ?>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Orqaga</button>
                         </div>
                         <?php ActiveForm::end(); ?>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .box_comment {
+                    min-width: 700px;
+                    margin: 20px auto;
+                    background: #ffffff;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                    overflow: auto;
+                }
+
+                .comment-item {
+                    padding: 12px 15px;
+                    border-radius: 10px;
+                    background: #f7f7f9;
+                    margin-bottom: 12px;
+                    transition: 0.2s;
+                    position: relative;
+                }
+
+                .comment-item:hover {
+                    background: #eef1ff;
+                }
+
+                .comment-user {
+                    font-weight: 600;
+                    color: #4a6cf7;
+                    margin-bottom: 5px;
+                    font-size: 14px;
+                }
+
+                .comment-text {
+                    font-size: 14px;
+                    color: #444;
+                    line-height: 1.5;
+                }
+
+                .comment-time {
+                    font-size: 12px;
+                    color: #999;
+                    margin-top: 5px;
+                }
+
+                .comment-actions {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                }
+
+                .comment-actions a {
+                    color: #888;
+                    margin-left: 8px;
+                    font-size: 16px;
+                    transition: 0.2s;
+                }
+
+                .comment-actions a:hover {
+                    color: #000;
+                }
+
+                .delete-btn:hover {
+                    color: red !important;
+                }
+
+                .edit-btn {
+                    border: none;
+                    outline: none;
+                    background-color: transparent;
+                }
+
+                .edit-btn:hover {
+                    color: #4a6cf7 !important;
+                }
+            </style>
+
+            <!-- Comment Modal -->
+            <div class="modal fade" id="exampleModalComment-<?= $product->id ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background: var(--surface); border-radius: 20px;">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel"><?= $product->name ?></h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div>
+                                <?php foreach ($product->comments as $comment): ?>
+                                    <div class="comment-item">
+                                        <div class="comment-user">
+                                            <?= $comment->user->username ?>
+                                        </div>
+
+                                        <div class="comment-text">
+                                            <?= $comment->comment ?>
+                                        </div>
+
+                                        <div class="comment-time">
+                                            <?= date('d.m.Y H:i', strtotime($comment->created_at)) ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                                <?php if (empty($product->comments)): ?>
+                                    <div class="comment-item">
+                                        <span style="color: black;">Comment yo'q</span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -641,8 +759,8 @@
                         </div>
                         <?php $form = ActiveForm::begin(['action' => ['products/chegirmaedit', 'id' => $product->latestBlog->id ?? 0], 'method' => 'post']); ?>
                         <div class="modal-body">
-                            <label class="form-label">Chegirma summasi</label>
-                            <input type="text" name="discount_price" value="<?= $product->latestBlog->discount_price ?? 0 ?>" class="form-control">
+                            <label class="form-label">Chegirma foizi</label>
+                            <input type="text" name="chegirma_foiz" value="<?= $product->latestBlog->chegirma_foiz ?? 0 ?>" class="form-control">
                         </div>
                         <div class="modal-footer">
                             <?= Html::submitButton('Saqlash', ['class' => 'btn-save']) ?>
@@ -719,6 +837,18 @@
                                             'class' => 'form-select',
                                             'id' => 'edit-subsubcategory-' . $product->id,
                                         ]
+                                    ) ?>
+                            </div>
+
+                            <div class="form-group">
+                                <?= $form->field($editModel, 'parent_id', ['template' => "<label class='form-label'>Bo'limni tanlang</label>{input}{error}"])
+                                    ->dropDownList(
+                                        \yii\helpers\ArrayHelper::map(
+                                            \common\models\ChildrenCategory::find()->where(['sub_sub_category_id' => $product->sub_sub_category_id])->all(),
+                                            'id',
+                                            'name'
+                                        ),
+                                        ['prompt' => 'Bo\'limni tanlang...', 'class' => 'form-select', 'id' => 'children-dropdown', 'id' => 'edit-childrencategory-' . $product->id]
                                     ) ?>
                             </div>
 
@@ -857,6 +987,14 @@
             </div>
 
             <div class="form-group">
+                <?= $form->field($model, 'parent_id', ['template' => "<label class='form-label'>Bo'limni tanlang</label>{input}{error}"])
+                    ->dropDownList(
+                        [],
+                        ['prompt' => 'Bo\'limni tanlang...', 'class' => 'form-select', 'id' => 'children-dropdown']
+                    ) ?>
+            </div>
+
+            <div class="form-group">
                 <?= $form->field($model, 'price', ['template' => "<label class='form-label'>Narx (so'm)</label>{input}{error}"])
                     ->input('number', ['placeholder' => 'Masalan: 500000', 'class' => 'form-control']) ?>
             </div>
@@ -938,6 +1076,39 @@
                 });
         } else {
             subsubcategoryDropdown.innerHTML = '<option value=\"\">Subkategoriyani tanlang...</option>';
+        }
+    });
+");
+    ?>
+
+    <?php
+    $this->registerJs("
+    // Modal tashqarisiga bosish
+    document.getElementById('productModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('active');
+    });
+
+    // Dynamic subcategory
+    document.getElementById('subsubcategory-dropdown').addEventListener('change', function() {
+        var sub_sub_categoryId = this.value;
+        var childrenDropdown = document.getElementById('children-dropdown');
+
+        childrenDropdown.innerHTML = '<option value=\"\">Yuklanmoqda...</option>';
+
+        if (sub_sub_categoryId) {
+            fetch('/index.php?r=products/get-childrens&sub_sub_category_id=' + sub_sub_categoryId)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    childrenDropdown.innerHTML = '<option value=\"\">Bo\'limni tanlang...</option>';
+                    Object.entries(data).forEach(function([id, name]) {
+                        childrenDropdown.innerHTML += '<option value=\"' + id + '\">' + name + '</option>';
+                    });
+                })
+                .catch(function() {
+                    childrenDropdown.innerHTML = '<option value=\"\">Xatolik yuz berdi</option>';
+                });
+        } else {
+            childrenDropdown.innerHTML = '<option value=\"\">Bo\'limni tanlang...</option>';
         }
     });
 ");

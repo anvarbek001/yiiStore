@@ -34,4 +34,9 @@ class ChildrenCategory extends ActiveRecord
     {
         return $this->hasMany(self::class, ['parent_id' => 'id']);
     }
+
+    public function getProducts()
+    {
+        return $this->hasMany(Product::class, ['parent_id' => 'id']);
+    }
 }

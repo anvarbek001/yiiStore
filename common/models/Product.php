@@ -22,6 +22,7 @@ class Product extends ActiveRecord
             [['user_id', 'category_id', 'sub_category_id', 'sub_sub_category_id', 'name', 'status', 'created_at'], 'required'],
             [['price', 'description', 'updated_at', 'status'], 'safe'],
             [['user_id', 'category_id', 'sub_category_id', 'price'], 'integer'],
+            [['parent_id'], 'integer'],
             [['name'], 'string'],
             // skipOnEmpty => true — rasm majburiy emas
             [['imageFiles'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg', 'maxFiles' => 10],
@@ -139,5 +140,15 @@ class Product extends ActiveRecord
                 'product_id' => $this->id
             ])
             ->exists();
+    }
+
+    public function getChildrenCategory()
+    {
+        return $this->hasOne(ChildrenCategory::class, ['id' => 'parent_id']);
+    }
+
+    public function getComments()
+    {
+        return $this->hasMany(Comment::class, ['product_id' => 'id']);
     }
 }

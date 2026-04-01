@@ -19,6 +19,7 @@ class Blog extends ActiveRecord
     {
         return [
             [['product_id', 'created_at', 'discount_price'], 'required'],
+            [['chegirma_foiz'], 'number']
         ];
     }
 

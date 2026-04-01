@@ -739,6 +739,8 @@ $images = $product->productImages;
             <?php endif; ?>
             <?php $form = ActiveForm::end(); ?>
 
+            <?= $this->render('comment', ['product_id' => $product->id]) ?>
+
             <!-- Tavsif -->
             <?php if ($product->description): ?>
                 <div>
@@ -760,6 +762,146 @@ $images = $product->productImages;
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+
+    <style>
+        .box_comment {
+            min-width: 700px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .comment-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: #f7f7f9;
+            margin-bottom: 12px;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .comment-item:hover {
+            background: #eef1ff;
+        }
+
+        .comment-user {
+            font-weight: 600;
+            color: #4a6cf7;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .comment-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .comment-actions a {
+            color: #888;
+            margin-left: 8px;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .comment-actions a:hover {
+            color: #000;
+        }
+
+        .delete-btn:hover {
+            color: red !important;
+        }
+
+        .edit-btn {
+            border: none;
+            outline: none;
+            background-color: transparent;
+        }
+
+        .edit-btn:hover {
+            color: #4a6cf7 !important;
+        }
+    </style>
+    <div class="box_comment">
+        <h3>Izohlar</h3>
+
+        <?php foreach ($product->comments as $comment): ?>
+            <div class="comment-item">
+
+                <!-- ACTION BUTTONS -->
+                <?php if (Yii::$app->user->id == $comment->user_id): ?>
+                    <div class="comment-actions">
+                        <!-- Edit -->
+                        <button class="edit-btn" title="Tahrirlash" data-bs-toggle="modal" data-bs-target="#editComment">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <!-- Edit comment modal -->
+                        <div class="modal fade" id="editComment" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Commentni tahrirlash</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="<?= Url::to(['site/edit-comment', 'id' => $comment->id]) ?>" method="POST">
+                                        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
+                                        <div class="modal-body w-100">
+                                            <div class="col-12">
+                                                <label class="form-label w-100">
+                                                    Comment
+                                                    <input type="text" class="form-control form-sm w-100" value="<?= $comment->comment ?>" name="Comments[comment]" required>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Orqaga</button>
+                                            <button type="submit" class="btn btn-primary btn-sm">Tahrirlash</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete -->
+                        <a href="<?= Url::to(['site/comment-delete', 'id' => $comment->id]) ?>"
+                            class="delete-btn"
+                            title="O‘chirish"
+                            onclick="return confirm('Rostdan ham o‘chirmoqchimisiz?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                <?php endif; ?>
+
+                <div class="comment-user">
+                    <?= $comment->user->username ?>
+                </div>
+
+                <div class="comment-text">
+                    <?= $comment->comment ?>
+                </div>
+
+                <div class="comment-time">
+                    <?= date('d.m.Y H:i', strtotime($comment->created_at)) ?>
+                </div>
+
+            </div>
+        <?php endforeach; ?>
     </div>
 
     <script>

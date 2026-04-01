@@ -3,6 +3,7 @@
 namespace frontend\controllers;
 
 use common\models\Category;
+use common\models\Comment;
 use common\models\Favourite;
 use common\models\Korzinka;
 use frontend\models\ResendVerificationEmailForm;
@@ -17,6 +18,8 @@ use common\models\LoginForm;
 use common\models\Product;
 use common\models\Shop;
 use common\models\User;
+use DateTime;
+use DateTimeZone;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -344,7 +347,7 @@ class SiteController extends Controller
 
     public function actionShop($id)
     {
-        $product = Product::find()->where(['id' => $id])->andWhere(['status' => 1])->with('favourite')->one();
+        $product = Product::find()->where(['id' => $id])->andWhere(['status' => 1])->with(['favourite', 'comments'])->one();
 
         if (!$product) {
             return $this->redirect(['site/index']);
@@ -697,4 +700,58 @@ class SiteController extends Controller
     //     Yii::$app->session->setFlash('error', "Ma'lumot kelmadi (POST emas).");
     //     return $this->redirect(['site/index']);
     // }
+
+
+    public function actionComment($product_id)
+    {
+        $model = new Comment();
+        if ($model->load(Yii::$app->request->post())) {
+            $model->user_id = Yii::$app->user->id;
+            $model->product_id = $product_id;
+            $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+            $model->created_at = $time->format('Y-m-d H:i:s');
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', "Comment yozildi");
+            } else {
+                $errors = $model->getFirstErrors();
+                $errorMessage = implode(', ', $errors);
+
+                Yii::$app->session->setFlash('error', "Xatolik yuz berdi: $errorMessage");
+            }
+        }
+        return $this->redirect(['site/shop', 'id' => $product_id]);
+    }
+
+    public function actionEditComment($id)
+    {
+        $comment = Comment::find()->where(['id' => $id])->andWhere(['user_id' => Yii::$app->user->id])->one();
+        if (!$comment) {
+            Yii::$app->session->setFlash('error', "Siz bu comment egasi emassiz");
+            return $this->redirect(['site/index']);
+        }
+        $post = Yii::$app->request->post();
+        $comment->comment = $post['Comments']['comment'];
+        $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+        $comment->updated_at = $time->format('Y-m-d H:i:s');
+        if ($comment->save()) {
+            Yii::$app->session->setFlash('success', "Comment tahrirlandi");
+            return $this->redirect(['site/shop', 'id' => $comment->product_id]);
+        } else {
+            Yii::$app->session->setFlash('error', "Tahrirlashda xatolik");
+            return $this->redirect(['site/shop', 'id' => $comment->product_id]);
+        }
+    }
+
+    public function actionCommentDelete($id)
+    {
+        $comment = Comment::find()->where(['id' => $id])->andWhere(['user_id' => Yii::$app->user->id])->one();
+        if (!$comment) {
+            Yii::$app->session->setFlash('error', "Siz bu comment egasi emassiz");
+            return $this->redirect(['site/index']);
+        }
+
+        $comment->delete();
+        Yii::$app->session->setFlash('success', "Comment o'chirildi");
+        return $this->redirect(['site/shop', 'id' => $comment->product_id]);
+    }
 }

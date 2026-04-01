@@ -233,4 +233,8 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany(Korzinka::class, ['user_id' => 'id']);
     }
+    public function getComments()
+    {
+        return $this->hasMany(Comment::class, ['user_id' => 'id']);
+    }
 }
