@@ -38,9 +38,6 @@ AppAsset::register($this);
             ],
         ]);
 
-        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->username === 'anvarbek') {
-            $menuItems[] =  ['label' => 'Kategoriya', 'url' => ['/site/index']];
-        }
 
         $menuItems = [
             ['label' => 'Mahsulotlar', 'url' => ['/products/index']],
@@ -49,6 +46,9 @@ AppAsset::register($this);
         ];
         if (!Yii::$app->user->isGuest && Yii::$app->user->identity->username === 'anvarbek') {
             $menuItems[] = ['label' => 'Users', 'url' => ['/site/user']];
+        }
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->username === 'anvarbek') {
+            $menuItems[] =  ['label' => 'Kategoriya', 'url' => ['/site/index']];
         }
 
         if (Yii::$app->user->isGuest) {

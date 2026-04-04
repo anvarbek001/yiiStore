@@ -18,5 +18,7 @@ return [
     'until' => '...gacha',
     'cheaper' => 'Arzonroq',
     'expensive' => 'Qimmatroq',
-    'view' => "Ko'rish"
+    'view' => "Ko'rish",
+    'views' => "Ko'rilganlar",
+    'recently' => "Tez orada"
 ];

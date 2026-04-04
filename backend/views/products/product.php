@@ -1004,6 +1004,11 @@
                     ->textarea(['placeholder' => 'Product haqida...', 'class' => 'form-control']) ?>
             </div>
 
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="tez_orada" id="flexSwitchCheckDefault">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Tez orada saytimizda</label>
+            </div>
+
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="document.getElementById('productModal').classList.remove('active')">Bekor</button>
                 <?= Html::submitButton('Saqlash', ['class' => 'btn-save']) ?>

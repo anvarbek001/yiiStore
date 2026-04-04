@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\models\Blog;
 use common\models\Category;
 use common\models\Comment;
 use common\models\Favourite;
@@ -18,6 +19,7 @@ use common\models\LoginForm;
 use common\models\Product;
 use common\models\Shop;
 use common\models\User;
+use common\models\ViewProduct;
 use DateTime;
 use DateTimeZone;
 use frontend\models\PasswordResetRequestForm;
@@ -353,6 +355,23 @@ class SiteController extends Controller
             return $this->redirect(['site/index']);
         }
 
+        $view = ViewProduct::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['product_id' => $product->id])->one();
+
+        if ($view) {
+            $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+            $view->created_at = $time->format('Y-m-d H:i:s');
+            $view->save();
+        } else {
+            $model = new ViewProduct();
+            $model->user_id = Yii::$app->user->identity->id;
+            $model->product_id = $product->id;
+            $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+            $model->created_at = $time->format('Y-m-d H:i:s');
+            $model->save();
+        }
+
+
+
         $categoryIds = $product->category_id;
 
         $recommendedProducts = Product::find()
@@ -639,7 +658,7 @@ class SiteController extends Controller
 
     public function actionTransaction()
     {
-        $korzinkas = Korzinka::find()->where(['user_id' => Yii::$app->user->id])->all();
+        $korzinkas = Korzinka::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['status' => 0])->all();
         $yetkazish = Yii::$app->request->post('yetkazish');
         $address   = Yii::$app->request->post('address');
         $tolovTuri   = Yii::$app->request->post('tolov_turi');
@@ -656,6 +675,8 @@ class SiteController extends Controller
             $korzinka->address = $address;
             $korzinka->tolov_turi = $tolovTuri;
             $korzinka->status = 1;
+            $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+            $korzinka->created_at = $time->format('Y-m-d H:i:s');
             if ($bolibTolash > 0 && $bolibTolash != null) {
                 $korzinka->muddatli_tolov_summasi = $bolibTolash;
             }
@@ -704,20 +725,25 @@ class SiteController extends Controller
 
     public function actionComment($product_id)
     {
-        $model = new Comment();
-        if ($model->load(Yii::$app->request->post())) {
-            $model->user_id = Yii::$app->user->id;
-            $model->product_id = $product_id;
-            $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
-            $model->created_at = $time->format('Y-m-d H:i:s');
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', "Comment yozildi");
-            } else {
-                $errors = $model->getFirstErrors();
-                $errorMessage = implode(', ', $errors);
+        $product = Product::findOne($product_id);
+        if ($product->status == 1) {
+            $model = new Comment();
+            if ($model->load(Yii::$app->request->post())) {
+                $model->user_id = Yii::$app->user->id;
+                $model->product_id = $product_id;
+                $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+                $model->created_at = $time->format('Y-m-d H:i:s');
+                if ($model->save()) {
+                    Yii::$app->session->setFlash('success', "Comment yozildi");
+                } else {
+                    $errors = $model->getFirstErrors();
+                    $errorMessage = implode(', ', $errors);
 
-                Yii::$app->session->setFlash('error', "Xatolik yuz berdi: $errorMessage");
+                    Yii::$app->session->setFlash('error', "Xatolik yuz berdi: $errorMessage");
+                }
             }
+        } else {
+            Yii::$app->session->setFlash('error', "Mahsulot nofaol holatda");
         }
         return $this->redirect(['site/shop', 'id' => $product_id]);
     }
@@ -753,5 +779,24 @@ class SiteController extends Controller
         $comment->delete();
         Yii::$app->session->setFlash('success', "Comment o'chirildi");
         return $this->redirect(['site/shop', 'id' => $comment->product_id]);
+    }
+
+    public function actionViews()
+    {
+        $products = Product::find()
+            ->innerJoin('view_products', 'view_products.product_id = products.id')
+            ->where(['view_products.user_id' => Yii::$app->user->identity->id])
+            ->all();
+        return $this->render('productviews', [
+            'products' => $products
+        ]);
+    }
+
+    public function actionTezda()
+    {
+        $products = Product::find()->innerJoin('reklama_products', 'reklama_products.product_id = products.id')->where(['status' => 0])->all();
+        return $this->render('tezorada', [
+            'products' => $products
+        ]);
     }
 }

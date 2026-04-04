@@ -151,4 +151,14 @@ class Product extends ActiveRecord
     {
         return $this->hasMany(Comment::class, ['product_id' => 'id']);
     }
+
+    public function getViewProducts()
+    {
+        return $this->hasMany(ViewProduct::class, ['produt_id' => 'id']);
+    }
+
+    public function getReklamaProducts()
+    {
+        return $this->hasMany(ReklamaProduct::class, ['product_id' => 'id']);
+    }
 }

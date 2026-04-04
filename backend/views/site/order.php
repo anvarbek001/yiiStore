@@ -2,6 +2,7 @@
 
 use common\components\FileUploader;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $this->title = "Buyurtmalar";
 ?>
@@ -339,6 +340,27 @@ $this->title = "Buyurtmalar";
                             </div>
                         <?php endif; ?>
 
+                        <div class="address-row">
+                            <span>Buyurtma sanasi:</span>
+                            <span><?= $k->created_at ?></span>
+                        </div>
+                        <?php if ($k->status == 1): ?>
+                            <div class="d-flex gap-2">
+                                <form action="<?= Url::to(['site/order-status', 'id' => $k->id]) ?>" onsubmit="return confirm('Mahsulot filialga yetkazildimi?')" method="POST">
+                                    <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
+                                    <button class="btn btn-primary btn-sm">Yetkazildi</button>
+                                </form>
+                                <form action="<?= Url::to(['site/order-cancel', 'id' => $k->id]) ?>" onsubmit="return confirm('Mahsulot bekor qilinsinmi?')" method="POST">
+                                    <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
+                                    <button class="btn btn-danger btn-sm">Bekor qilish</button>
+                                </form>
+                            </div>
+                        <?php elseif ($k->status != 2 && $k->status != 0): ?>
+                            <form action="<?= Url::to(['site/order-status', 'id' => $k->id]) ?>" onsubmit="return confirm('Mahsulot filialga yetkazildimi?')" method="POST">
+                                <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
+                                <button class="btn btn-primary btn-sm">Yetkazildi</button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>

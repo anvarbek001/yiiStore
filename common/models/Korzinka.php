@@ -21,6 +21,7 @@ class Korzinka extends ActiveRecord
             [['address'], 'string'],
             [['yetkazish_turi'], 'string'],
             [['tolov_turi'], 'string'],
+            [['created_at'], 'datetime', 'format' => 'php:Y-m-d H:i:s']
         ];
     }
 

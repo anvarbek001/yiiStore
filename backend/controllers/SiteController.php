@@ -36,7 +36,7 @@ class SiteController extends Controller
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index', 'blog', 'user', 'update-user', 'chegirma', 'edit-chegirma', 'delete-chegirma', 'order'],
+                        'actions' => ['logout', 'index', 'blog', 'user', 'update-user', 'chegirma', 'edit-chegirma', 'delete-chegirma', 'order', 'order-status', 'order-cancel'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -335,5 +335,33 @@ class SiteController extends Controller
         return $this->render('order', [
             'korzinkas' => $korzinkas
         ]);
+    }
+
+    public function actionOrderStatus($id)
+    {
+        $order = Korzinka::findOne($id);
+        if (!$order) {
+            Yii::$app->session->setFlash('error', "Mahsulot topilmadi");
+            return $this->redirect(['site/order']);
+        }
+
+        $order->status = 2;
+        $order->save();
+        Yii::$app->session->setFlash('success', "Mahsulot yetkazildi");
+        return $this->redirect(['site/order']);
+    }
+
+    public function actionOrderCancel($id)
+    {
+        $order = Korzinka::findOne($id);
+        if (!$order) {
+            Yii::$app->session->setFlash('error', "Mahsulot topilmadi");
+            return $this->redirect(['site/order']);
+        }
+
+        $order->status = 3;
+        $order->save();
+        Yii::$app->session->setFlash('error', "Mahsulot bekor qilindi");
+        return $this->redirect(['site/order']);
     }
 }

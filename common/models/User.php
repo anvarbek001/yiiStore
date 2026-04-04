@@ -237,4 +237,14 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany(Comment::class, ['user_id' => 'id']);
     }
+
+    public function getViewProducts()
+    {
+        return $this->hasMany(ViewProduct::class, ['user_id' => 'id']);
+    }
+
+    public function getReklamaProducts()
+    {
+        return $this->hasMany(ReklamaProduct::class, ['user_id' => 'id']);
+    }
 }

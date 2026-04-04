@@ -10,7 +10,10 @@ use common\components\FileUploader;
 use common\models\Blog;
 use common\models\ChildrenCategory;
 use common\models\ProductImage;
+use common\models\ReklamaProduct;
 use common\models\SubSubCategory;
+use DateTime;
+use DateTimeZone;
 use PDO;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -43,6 +46,7 @@ class ProductsController extends Controller
     public function actionIndex()
     {
         $model = new Product();
+        $reklama = new ReklamaProduct();
 
         $dataProvider = new ActiveDataProvider([
             'query' => Product::find()->where(['user_id' => Yii::$app->user->id])->with(['user', 'category', 'subcategory', 'subSubCategory', 'childrenCategory', 'productImages', 'latestBlog'])->orderBy(['created_at' => SORT_DESC]),
@@ -56,19 +60,31 @@ class ProductsController extends Controller
         $subSubCategories = SubSubCategory::find()->all();
 
         // dd(Yii::$app->request->post());
+
         if (Yii::$app->request->isPost) {
             if ($model->load(Yii::$app->request->post())) {
                 $model->user_id = Yii::$app->user->id;
-                $model->status = 1;
+                if (Yii::$app->request->post('tez_orada')) {
+                    $model->status = 0;
+                } else {
+                    $model->status = 1;
+                }
                 $model->created_at = date('Y-m-d H:i:s');
                 $model->updated_at = date('Y-m-d H:i:s');
 
-                // Ko'p rasmlar uchun getInstances (s bilan!)
                 $model->imageFiles = UploadedFile::getInstances($model, 'imageFiles');
 
                 if ($model->save()) {
                     $model->upload();
-
+                    if (Yii::$app->request->post('tez_orada')) {
+                        $reklama->user_id = Yii::$app->user->identity->id;
+                        $reklama->product_id = $model->id;
+                        $time = new DateTime('now', new DateTimeZone('Asia/Tashkent'));
+                        $reklama->created_at = $time->format('Y-m-d H:i:s');
+                        $reklama->save();
+                        Yii::$app->session->setFlash('success', 'Product muvaffaqiyatli saqlandi');
+                        return $this->redirect(['index']);
+                    }
                     Yii::$app->session->setFlash('success', 'Product muvaffaqiyatli saqlandi');
                     return $this->redirect(['index']);
                 } else {

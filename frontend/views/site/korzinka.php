@@ -463,7 +463,7 @@ $this->title = 'Savat';
 
                         <div class="item-price"><?= number_format($price, 0, '.', ' ') ?> so‘m</div>
 
-                        <?php if ($item->status == 1): ?>
+                        <?php if ($item->status != 0 && $item->status != 3): ?>
                             <div style="background: rgba(67, 217, 162, 0.08);
                                             border: 1px solid rgba(67, 217, 162, 0.25);
                                             border-radius: 10px;
@@ -502,6 +502,8 @@ $this->title = 'Savat';
                             <div class="quantity-control">
                                 <input type="number" class="quantity-input" value="<?= $qty ?>" min="1" readonly>
                             </div>
+                        <?php elseif ($item->status == 3): ?>
+                            <span>❌Sizning xaridingiz bekor qilindi.</span>
                         <?php else: ?>
                             <div class="quantity-control">
                                 <button class="quantity-btn incr-btn">+</button>
@@ -514,7 +516,7 @@ $this->title = 'Savat';
 
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 28px;">
                         <div class="item-total"><?= number_format($subtotal, 0, '.', ' ') ?> so‘m</div>
-                        <?php if ($item->status != 1): ?>
+                        <?php if ($item->status == 0): ?>
                             <?= Html::a('<i class="bi bi-trash"></i>', ['site/korzinkadelete', 'id' => $item->id], [
                                 'class' => 'remove-btn',
                                 'data-method' => 'post',

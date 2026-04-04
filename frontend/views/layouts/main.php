@@ -28,7 +28,7 @@ AppAsset::register($this);
     <style>
         .search_input {
             margin-right: 15px;
-            width: 15rem;
+            width: 300px !important;
         }
     </style>
 </head>
@@ -48,6 +48,8 @@ AppAsset::register($this);
         ]);
         $menuItems = [
             ['label' => Yii::t('app', 'home'), 'url' => ['/site/index']],
+            ['label' => Yii::t('app', 'views'), 'url' => ['/site/views']],
+            ['label' => Yii::t('app', 'recently'), 'url' => ['/site/tezda']],
             // ['label' =>  Yii::t('app', 'about'), 'url' => ['/site/about']],
             // ['label' => Yii::t('app', 'contact'), 'url' => ['/site/contact']],
         ];
