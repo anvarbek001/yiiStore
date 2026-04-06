@@ -47,12 +47,9 @@ class Korzinka extends ActiveRecord
 
     public function countProductSuccess()
     {
-        $products = Korzinka::find()->where(['user_id' => Yii::$app->user->id, 'status' => 1])->all();
-        $count = 0;
-        foreach ($products as $product) {
-            $count += $product->count;
-        }
-        return $count;
+        $products = Korzinka::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['!=', 'status', 0])->all();
+
+        return count($products);
     }
 
     public function priceProduct()
@@ -72,7 +69,7 @@ class Korzinka extends ActiveRecord
 
     public function priceProductSuccess()
     {
-        $products = Korzinka::find()->where(['user_id' => Yii::$app->user->id, 'status' => 1])->all();
+        $products = Korzinka::find()->where(['user_id' => Yii::$app->user->id])->andWhere(['!=', 'status', 0])->all();
         $price = 0;
         foreach ($products as $product) {
             $price += $product->price * $product->count;

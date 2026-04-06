@@ -9,6 +9,7 @@ use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 ?>
@@ -32,12 +33,11 @@ AppAsset::register($this);
         <?php
         NavBar::begin([
             'brandLabel' => Yii::$app->name,
-            'brandUrl' => Yii::$app->homeUrl,
+            'brandUrl' => Url::to(['products/index']),
             'options' => [
                 'class' => 'navbar navbar-expand-md navbar-dark bg-dark fixed-top',
             ],
-        ]);
-
+        ]); 
 
         $menuItems = [
             ['label' => 'Mahsulotlar', 'url' => ['/products/index']],

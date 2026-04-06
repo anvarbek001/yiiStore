@@ -657,3 +657,93 @@ $this->title = "Ko'rilganlar";
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    const CSRF_TOKEN = '<?= Yii::$app->request->csrfToken ?>';
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.xarid_btn');
+        if (!btn) return;
+        e.preventDefault();
+        if (btn.dataset.inCart === '1') {
+            alert('Mahsulot allaqachon savatda!');
+            return;
+        }
+        const productId = btn.dataset.id;
+        fetch('/index.php?r=site/korzinka', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Savatda ✓`;
+                    btn.classList.add('in-cart');
+                    btn.dataset.inCart = '1';
+                } else {
+                    alert(data.message || 'Xatolik yuz berdi');
+                }
+            })
+            .catch(() => alert('Server bilan bog\'lanishda xatolik'));
+    });
+
+    document.querySelectorAll('.btn_guest').forEach((guest) => {
+        guest.addEventListener('click', () => {
+            alert("Mahsulot sotuvda mavjud emas")
+            return;
+        })
+    })
+
+    document.querySelectorAll('.btn-favourites').forEach((guest) => {
+        guest.addEventListener('click', () => {
+            alert("Avval login qiling")
+            return
+        })
+    })
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.favourite_btn');
+        if (!btn) return;
+        e.preventDefault();
+        const productId = btn.dataset.id;
+        if (!productId) {
+            return;
+        }
+        fetch('/index.php?r=site/favourite', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (btn.dataset.fav === '0') {
+                        btn.textContent = '♥';
+                        btn.classList.add('active');
+                        btn.dataset.fav = '1';
+                        btn.title = 'Sevimlilarda bor';
+                    } else {
+                        btn.textContent = '♡';
+                        btn.classList.remove('active');
+                        btn.dataset.fav = '0';
+                        btn.title = "Sevimlilarga qo'shish";
+                    }
+                } else {
+                    alert(data.message || 'Xatolik yuz berdi');
+                }
+            })
+            .catch(() => alert('Server bilan bog\'lanishda xatolik'));
+    });
+</script>

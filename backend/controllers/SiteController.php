@@ -113,7 +113,7 @@ class SiteController extends Controller
                 return $this->redirect(['site/login']);
             }
 
-            return $this->goBack();
+            return $this->redirect(['products/index']);
         }
 
         $model->password = '';
