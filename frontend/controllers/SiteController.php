@@ -376,7 +376,7 @@ class SiteController extends Controller
 
         $recommendedProducts = Product::find()
             ->where(['category_id' => $categoryIds])
-            ->andWhere(['not in', 'sub_category_id', $product->sub_category_id])
+            ->andWhere(['not in', 'sub_sub_category_id', $product->sub_sub_category_id])
             ->andWhere(['not in', 'id', $product->id])
             ->with(['productImages', 'category', 'subcategory'])
             ->limit(8)
